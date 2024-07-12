@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1097179501295",
+    "project_id": "ntriniw",
+    "storage_bucket": "ntriniw.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097179501295:android:fa3b8f3d489f5d18bac11a",
+        "android_client_info": {
+          "package_name": "com.example.ntrriniw_v0"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1uAx-dFLOtbSvaPdSfv_MsEFSQs1dOZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
