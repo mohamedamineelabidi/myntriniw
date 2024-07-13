@@ -66,7 +66,9 @@ class _MyStoryState extends State<MyStory> {
                       ),
                       shape: BoxShape.circle,
                       image: DecorationImage(
-                        image: NetworkImage(widget.imageUrl),
+                        image: widget.imageUrl != "defautIMG"
+                            ? NetworkImage(widget.imageUrl)
+                            : const AssetImage("images/user.jpeg"),
                         fit: BoxFit.cover,
                       ),
                     ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ntrriniw_v0/components/my_button.dart';
 import 'package:ntrriniw_v0/components/my_text_field.dart';
 import 'package:ntrriniw_v0/services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
@@ -14,6 +16,9 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  File? _image;
+  final picker = ImagePicker();
+  final usernamecontroller = TextEditingController();
   final emailcontroller = TextEditingController();
   final passwdcontroller = TextEditingController();
   final confirmPasswdcontroller = TextEditingController();
@@ -30,8 +35,8 @@ class _RegisterPageState extends State<RegisterPage> {
     final authService = Provider.of<AuthService>(context, listen: false);
 
     try {
-      authService.signUpWithEmailandPassword(
-          emailcontroller.text, passwdcontroller.text);
+      authService.signUpWithEmailandPassword(emailcontroller.text,
+          passwdcontroller.text, usernamecontroller.text, _image);
     } catch (e) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,6 +47,18 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       );
     }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
   }
 
   @override
@@ -69,7 +86,26 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 50),
-                    Image.asset('images/add.png', width: 100, height: 100),
+                    GestureDetector(
+                      onTap: () async {
+                        await _pickImage();
+                      },
+                      child: ClipOval(
+                        child: Container(
+                          width: 130.0,
+                          height: 130.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: _image == null
+                                  ? const AssetImage("images/user.jpeg")
+                                  : FileImage(_image!),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 25),
                     Text(
                       "Let's create an account for you!",
@@ -79,6 +115,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
+                    MyTextField(
+                        controller: usernamecontroller,
+                        hintText: "Username",
+                        obscureText: false),
+                    const SizedBox(height: 20),
                     MyTextField(
                         controller: emailcontroller,
                         hintText: "Email",

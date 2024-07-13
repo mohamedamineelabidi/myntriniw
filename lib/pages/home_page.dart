@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ntrriniw_v0/components/my_app_bar.dart';
 import 'package:ntrriniw_v0/components/my_nav_bar.dart';
@@ -12,6 +14,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,17 +27,26 @@ class _HomePageState extends State<HomePage> {
           SliverToBoxAdapter(
             child: SizedBox(
               height: 110.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return MyStory(
-                    imageUrl:
-                        'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                    username: 'User $index',
-                  );
-                },
-              ),
+              child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("users")
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text("Error");
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text("Loading");
+                    }
+
+                    return ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: snapshot.data!.docs
+                          .map<Widget>((doc) => _buildUserListItem(doc))
+                          .toList(),
+                    );
+                  }),
             ),
           ),
           SliverList(
@@ -56,5 +69,15 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildUserListItem(DocumentSnapshot document) {
+    Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+
+    if (_auth.currentUser!.email != data["email"]) {
+      return MyStory(imageUrl: data["profileImg"], username: data["username"]);
+    } else {
+      return Container();
+    }
   }
 }

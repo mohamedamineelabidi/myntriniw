@@ -1,10 +1,11 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  // final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
   Future<UserCredential> signInWithEmailandPassword(
       String email, String password) async {
@@ -27,18 +28,34 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<UserCredential> signUpWithEmailandPassword(
-      String email, password) async {
+      String email, password, username, image) async {
     try {
       UserCredential userCredential =
           await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      if (image != null) {
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('usersProfile/${DateTime.now().toIso8601String()}');
+        await storageRef.putFile(image!);
+        final downloadURL = await storageRef.getDownloadURL();
 
-      // _fireStore.collection('users').doc(userCredential.user!.uid).set({
-      //   "uid": userCredential.user!.uid,
-      //   "email": email,
-      // });
+        _fireStore.collection('users').doc(userCredential.user!.uid).set({
+          "uid": userCredential.user!.uid,
+          "username": username,
+          "email": email,
+          "profileImg": downloadURL,
+        });
+      } else {
+        _fireStore.collection('users').doc(userCredential.user!.uid).set({
+          "uid": userCredential.user!.uid,
+          "username": username,
+          "email": email,
+          "profileImg": 'defautIMG',
+        });
+      }
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
