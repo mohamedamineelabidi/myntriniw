@@ -7,6 +7,16 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined, size: 26),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.chat_outlined, size: 26),
+          onPressed: () {},
+        )
+      ],
       scrolledUnderElevation: 0.0,
       backgroundColor: Colors.white,
       title: Text(
@@ -16,18 +26,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: Colors.black,
         ),
       ),
-      actions: const [
-        Icon(
-          Icons.notifications_outlined,
-          size: 26,
-        ),
-        SizedBox(width: 15),
-        Icon(
-          Icons.chat_outlined,
-          size: 26,
-        ),
-        SizedBox(width: 15),
-      ],
       automaticallyImplyLeading: false,
     );
   }

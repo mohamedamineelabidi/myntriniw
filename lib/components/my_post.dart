@@ -72,6 +72,11 @@ class _MyPostState extends State<MyPost> {
                     ),
                   ],
                 ),
+                // const Spacer(),
+                // IconButton(
+                //   icon: const Icon(Icons.close_outlined),
+                //   onPressed: () {},
+                // ),
               ],
             ),
           ),
