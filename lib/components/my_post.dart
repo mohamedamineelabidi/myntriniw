@@ -51,7 +51,9 @@ class _MyPostState extends State<MyPost> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
-                        image: NetworkImage(widget.userImageUrl),
+                        image: widget.userImageUrl != "defautIMG"
+                            ? NetworkImage(widget.userImageUrl)
+                            : const AssetImage("images/user.jpeg"),
                         fit: BoxFit.cover,
                       ),
                     ),

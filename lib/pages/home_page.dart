@@ -5,6 +5,7 @@ import 'package:ntrriniw_v0/components/my_app_bar.dart';
 import 'package:ntrriniw_v0/components/my_nav_bar.dart';
 import 'package:ntrriniw_v0/components/my_post.dart';
 import 'package:ntrriniw_v0/components/my_story.dart';
+import 'package:ntrriniw_v0/components/my_new.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,11 +42,12 @@ class _HomePageState extends State<HomePage> {
                     }
 
                     return ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: snapshot.data!.docs
-                          .map<Widget>((doc) => _buildUserListItem(doc))
-                          .toList(),
-                    );
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          const NewPage(uid: 'test'),
+                          ...snapshot.data!.docs
+                              .map<Widget>((doc) => _buildUserListItem(doc))
+                        ]);
                   }),
             ),
           ),
