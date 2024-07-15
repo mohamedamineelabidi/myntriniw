@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 
+import 'package:ntrriniw_v0/components/my_button.dart';
+
 class NewPost extends StatefulWidget {
   const NewPost({super.key});
 
@@ -45,7 +47,6 @@ class _NewPostState extends State<NewPost> {
         throw Exception('User not authenticated');
       }
 
-      // Upload image to Firebase Storage
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
       Reference storageRef = FirebaseStorage.instance
           .ref()
@@ -55,27 +56,33 @@ class _NewPostState extends State<NewPost> {
       await storageRef.putFile(_imageFile!);
       String imageUrl = await storageRef.getDownloadURL();
 
-      // Create post in Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
+      DocumentSnapshot<Map<String, dynamic>> userInfo = await FirebaseFirestore
+          .instance
+          .collection("users")
           .doc(user.uid)
-          .collection('posts')
-          .add({
+          .get();
+
+      await FirebaseFirestore.instance.collection('posts').add({
+        'userId': user.uid,
+        'username': userInfo.data()?['username'],
+        'profileImg': userInfo.data()?['profileImg'],
         'text': _textController.text,
         'image_url': imageUrl,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Post created successfully')),
       );
 
-      _textController.clear();
-      setState(() {
-        _imageFile = null;
-        _isLoading = false;
-      });
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error creating post: $e')),
       );
@@ -106,20 +113,13 @@ class _NewPostState extends State<NewPost> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              _imageFile != null
-                  ? Image.file(_imageFile!)
-                  : const Text('No image selected'),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: const Text('Pick Image'),
-              ),
+              _imageFile != null ? Image.file(_imageFile!) : const Text(''),
+              const SizedBox(height: 16.0),
+              MyButton(onTap: _pickImage, text: "Upload Image"),
               const SizedBox(height: 16.0),
               _isLoading
                   ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _createPost,
-                      child: const Text('Create Post'),
-                    ),
+                  : MyButton(onTap: _createPost, text: "Share"),
             ],
           ),
         ),

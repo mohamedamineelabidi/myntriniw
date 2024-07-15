@@ -29,44 +29,67 @@ class _HomePageState extends State<HomePage> {
             child: SizedBox(
               height: 110.0,
               child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection("users")
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return const Text("Error");
-                    }
+                stream:
+                    FirebaseFirestore.instance.collection("users").snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text("Error");
+                  }
 
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text("Loading");
-                    }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Text("Loading");
+                  }
 
-                    return ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          const NewPage(uid: 'test'),
-                          ...snapshot.data!.docs
-                              .map<Widget>((doc) => _buildUserListItem(doc))
-                        ]);
-                  }),
+                  return ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      const NewPage(uid: 'test'),
+                      ...snapshot.data!.docs
+                          .map<Widget>((doc) => _buildUserListItem(doc)),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return MyPost(
-                  postImageUrl:
-                      "https://i.pinimg.com/736x/b1/57/32/b1573252592009209d45a186360dea8c.jpg",
-                  postTime: "2 hours ago",
-                  text:
-                      "Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? v Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? v Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? Messi is here what are you going to do ? v Messi is here what are you going to do ?",
-                  userImageUrl:
-                      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                  username: 'User $index',
-                );
-              },
-              childCount: 20,
-            ),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection("posts")
+                .orderBy("timestamp", descending: true)
+                .snapshots(),
+            builder: (context, postSnapshot) {
+              if (postSnapshot.hasError) {
+                return const SliverToBoxAdapter(
+                    child: Text("Error loading posts"));
+              }
+
+              if (postSnapshot.connectionState == ConnectionState.waiting) {
+                return const SliverToBoxAdapter(
+                    child: Center(child: CircularProgressIndicator()));
+              }
+
+              if (postSnapshot.data!.docs.isEmpty) {
+                return const SliverToBoxAdapter(
+                    child: Center(child: Text("No posts available")));
+              }
+
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    var postData = postSnapshot.data!.docs[index];
+
+                    return MyPost(
+                      postImageUrl: postData['image_url'],
+                      postTime: _getTimeAgo(postData['timestamp']),
+                      text: postData['text'],
+                      userImageUrl: postData['profileImg'],
+                      username: postData['username'],
+                    );
+                  },
+                  childCount: postSnapshot.data!.docs.length,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -80,6 +103,21 @@ class _HomePageState extends State<HomePage> {
       return MyStory(imageUrl: data["profileImg"], username: data["username"]);
     } else {
       return Container();
+    }
+  }
+
+  String _getTimeAgo(Timestamp timestamp) {
+    final DateTime postTime = timestamp.toDate();
+    final Duration difference = DateTime.now().difference(postTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minutes ago';
+    } else {
+      return 'Just now';
     }
   }
 }

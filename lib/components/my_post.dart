@@ -145,6 +145,7 @@ class _MyPostState extends State<MyPost> {
                 //     style: const TextStyle(color: Colors.grey),
                 //   ),
                 // ),
+                const SizedBox(height: 10)
               ],
             ),
           ),
