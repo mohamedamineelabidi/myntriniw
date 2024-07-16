@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                   return ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      const NewPage(uid: 'test'),
+                      const NewPage(),
                       ...snapshot.data!.docs
                           .map<Widget>((doc) => _buildUserListItem(doc)),
                     ],

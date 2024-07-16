@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class MyPost extends StatefulWidget {
@@ -51,8 +52,8 @@ class _MyPostState extends State<MyPost> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
-                        image: widget.userImageUrl != "defautIMG"
-                            ? NetworkImage(widget.userImageUrl)
+                        image: widget.userImageUrl != "defaultIMG"
+                            ? CachedNetworkImageProvider(widget.userImageUrl)
                             : const AssetImage("images/user.jpeg"),
                         fit: BoxFit.cover,
                       ),
@@ -82,8 +83,8 @@ class _MyPostState extends State<MyPost> {
               ],
             ),
           ),
-          Image.network(
-            widget.postImageUrl,
+          CachedNetworkImage(
+            imageUrl: widget.postImageUrl,
             fit: BoxFit.cover,
             width: double.infinity,
           ),

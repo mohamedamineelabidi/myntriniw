@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MyStory extends StatefulWidget {
   final String imageUrl;
@@ -54,32 +55,39 @@ class _MyStoryState extends State<MyStory> {
           child: Container(
             margin: const EdgeInsets.all(8.0),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                ClipOval(
-                  child: Container(
-                    width: 70.0,
-                    height: 70.0,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 58, 163, 70),
-                        width: 2.0,
-                      ),
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: widget.imageUrl != "defautIMG"
-                            ? NetworkImage(widget.imageUrl)
-                            : const AssetImage("images/user.jpeg"),
-                        fit: BoxFit.cover,
-                      ),
+                Container(
+                  width: 74.0,
+                  height: 74.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 58, 163, 70),
+                      width: 2.0,
                     ),
+                  ),
+                  child: ClipOval(
+                    child: widget.imageUrl != "defautIMG"
+                        ? CachedNetworkImage(
+                            imageUrl: widget.imageUrl,
+                            fit: BoxFit.cover,
+                          )
+                        : const Image(
+                            image: AssetImage("images/user.jpeg"),
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 const SizedBox(height: 4.0),
-                Text(
-                  widget.username,
-                  style: GoogleFonts.openSans(
-                    fontSize: 12.0,
-                    color: Colors.black,
+                Flexible(
+                  child: Text(
+                    widget.username,
+                    style: GoogleFonts.openSans(
+                      fontSize: 12.0,
+                      color: Colors.black,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

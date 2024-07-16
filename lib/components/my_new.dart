@@ -3,11 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ntrriniw_v0/pages/new_post.dart';
 
 class NewPage extends StatefulWidget {
-  final String uid;
 
   const NewPage({
     super.key,
-    required this.uid,
   });
 
   @override

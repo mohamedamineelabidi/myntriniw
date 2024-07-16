@@ -4,7 +4,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
-
 import 'package:ntrriniw_v0/components/my_button.dart';
 
 class NewPost extends StatefulWidget {
@@ -80,7 +79,6 @@ class _NewPostState extends State<NewPost> {
       Navigator.pop(context);
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
-      
     } catch (e) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
