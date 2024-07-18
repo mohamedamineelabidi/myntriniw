@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ntrriniw_v0/components/my_app_bar.dart';
 import 'package:ntrriniw_v0/components/my_nav_bar.dart';
@@ -15,8 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,8 +26,9 @@ class _HomePageState extends State<HomePage> {
             child: SizedBox(
               height: 110.0,
               child: StreamBuilder<QuerySnapshot>(
-                stream:
-                    FirebaseFirestore.instance.collection("users").snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection("stories")
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return const Text("Error");
@@ -45,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const NewPage(),
                       ...snapshot.data!.docs
-                          .map<Widget>((doc) => _buildUserListItem(doc)),
+                          .map<Widget>((doc) => _buildStoryListItem(doc)),
                     ],
                   );
                 },
@@ -96,14 +94,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildUserListItem(DocumentSnapshot document) {
+  Widget _buildStoryListItem(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-
-    if (_auth.currentUser!.email != data["email"]) {
-      return MyStory(imageUrl: data["profileImg"], username: data["username"]);
-    } else {
-      return Container();
-    }
+    return MyStory(
+      storyImageUrl: data["image_url"],
+      storyTime: data['timestamp'],
+      userImageUrl: data['profileImg'],
+      username: data['username'],
+      backgroundColor: data['backgroundColor'],
+    );
   }
 
   String _getTimeAgo(Timestamp timestamp) {

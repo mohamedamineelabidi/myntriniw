@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ntrriniw_v0/pages/new_post.dart';
+import 'package:ntrriniw_v0/pages/new_storie.dart';
 
 class NewPage extends StatefulWidget {
-
   const NewPage({
     super.key,
   });
@@ -68,19 +68,23 @@ class _NewPageState extends State<NewPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.video_collection),
-                title: const Text('Create New Reel'),
-                onTap: () {
-                  // Handle creating new reel
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.recent_actors_outlined),
                 title: const Text('Create New Story'),
                 onTap: () {
-                  // Handle creating new story
-                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const NewStory(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
                 },
               ),
             ],

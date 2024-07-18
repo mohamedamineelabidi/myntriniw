@@ -1,15 +1,23 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ntrriniw_v0/components/view_story.dart';
 
 class MyStory extends StatefulWidget {
-  final String imageUrl;
+  final String storyImageUrl;
+  final Timestamp storyTime;
+  final String userImageUrl;
   final String username;
+  final String backgroundColor;
 
   const MyStory({
     super.key,
-    required this.imageUrl,
+    required this.storyImageUrl,
+    required this.storyTime,
+    required this.userImageUrl,
     required this.username,
+    required this.backgroundColor,
   });
 
   @override
@@ -32,7 +40,24 @@ class _MyStoryState extends State<MyStory> {
       _opacity = 1.0;
       _scale = 1.0;
     });
-    print("I'm clicked");
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => ViewStory(
+          storyImageUrl: widget.storyImageUrl,
+          storyTime: widget.storyTime,
+          userImageUrl: widget.userImageUrl,
+          username: widget.username,
+          backgroundColor: widget.backgroundColor,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   void _onTapCancel() {
@@ -68,9 +93,9 @@ class _MyStoryState extends State<MyStory> {
                     ),
                   ),
                   child: ClipOval(
-                    child: widget.imageUrl != "defautIMG"
+                    child: widget.userImageUrl != "defautIMG"
                         ? CachedNetworkImage(
-                            imageUrl: widget.imageUrl,
+                            imageUrl: widget.userImageUrl,
                             fit: BoxFit.cover,
                           )
                         : const Image(
