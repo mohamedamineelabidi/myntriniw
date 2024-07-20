@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ntrriniw_v0/components/my_app_bar.dart';
 import 'package:ntrriniw_v0/components/my_nav_bar.dart';
 
@@ -12,14 +13,19 @@ class StorePage extends StatefulWidget {
 class _StorePageState extends State<StorePage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+        backgroundColor: Colors.white,
         appBar: MyAppBar(),
-        body: Center(
-          child: Text(
-            "The store page ",
-            style: TextStyle(fontSize: 24),
-          ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Workshops",
+              style: GoogleFonts.openSans(
+                  fontSize: 25, fontWeight: FontWeight.w800),
+            )
+          ],
         ),
-        bottomNavigationBar: MyNavBar(selectedIndex: 3));
+        bottomNavigationBar: const MyNavBar(selectedIndex: 3));
   }
 }
