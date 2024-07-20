@@ -38,12 +38,24 @@ class _HomePageState extends State<HomePage> {
                     return const Text("Loading");
                   }
 
+                  // Group stories by user
+                  Map<String, List<DocumentSnapshot>> userStoriesMap = {};
+                  for (var doc in snapshot.data!.docs) {
+                    String userId = doc['userId'];
+                    if (userStoriesMap.containsKey(userId)) {
+                      userStoriesMap[userId]!.add(doc);
+                    } else {
+                      userStoriesMap[userId] = [doc];
+                    }
+                  }
+
                   return ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
                       const NewPage(),
-                      ...snapshot.data!.docs
-                          .map<Widget>((doc) => _buildStoryListItem(doc)),
+                      ...userStoriesMap.entries.map<Widget>((entry) {
+                        return _buildUserStoryListItem(entry.key, entry.value);
+                      }).toList(),
                     ],
                   );
                 },
@@ -82,6 +94,7 @@ class _HomePageState extends State<HomePage> {
                       text: postData['text'],
                       userImageUrl: postData['profileImg'],
                       username: postData['username'],
+                      postId: postData.id,
                     );
                   },
                   childCount: postSnapshot.data!.docs.length,
@@ -94,14 +107,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildStoryListItem(DocumentSnapshot document) {
-    Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+  Widget _buildUserStoryListItem(String userId, List<DocumentSnapshot> stories) {
+    var data = stories.first.data()! as Map<String, dynamic>;
     return MyStory(
-      storyImageUrl: data["image_url"],
-      storyTime: data['timestamp'],
+      stories: stories,
       userImageUrl: data['profileImg'],
       username: data['username'],
-      backgroundColor: data['backgroundColor'],
     );
   }
 

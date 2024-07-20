@@ -4,25 +4,16 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class ViewStory extends StatefulWidget {
-  final String storyImageUrl;
-  final Timestamp storyTime;
-  final String userImageUrl;
-  final String username;
-  final String backgroundColor;
+  final List<Map<String, dynamic>> stories;
   final Duration displayDuration;
 
   const ViewStory({
     super.key,
-    required this.storyImageUrl,
-    required this.storyTime,
-    required this.userImageUrl,
-    required this.username,
-    required this.backgroundColor,
-    this.displayDuration = const Duration(seconds: 1),
+    required this.stories,
+    this.displayDuration = const Duration(seconds: 5),
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _ViewStoryState createState() => _ViewStoryState();
 }
 
@@ -31,6 +22,7 @@ class _ViewStoryState extends State<ViewStory> {
   bool _isPaused = false;
   bool _isRowVisible = true;
   late Duration _remainingTime;
+  int _currentStoryIndex = 0;
 
   @override
   void initState() {
@@ -42,13 +34,33 @@ class _ViewStoryState extends State<ViewStory> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingTime.inSeconds <= 0) {
-        _closeStory();
+        _nextStory();
       } else if (!_isPaused) {
         setState(() {
           _remainingTime = Duration(seconds: _remainingTime.inSeconds - 1);
         });
       }
     });
+  }
+
+  void _nextStory() {
+    if (_currentStoryIndex < widget.stories.length - 1) {
+      setState(() {
+        _currentStoryIndex++;
+        _remainingTime = widget.displayDuration;
+      });
+    } else {
+      _closeStory();
+    }
+  }
+
+  void _previousStory() {
+    if (_currentStoryIndex > 0) {
+      setState(() {
+        _currentStoryIndex--;
+        _remainingTime = widget.displayDuration;
+      });
+    }
   }
 
   void _pauseTimer(_) {
@@ -85,14 +97,24 @@ class _ViewStoryState extends State<ViewStory> {
 
   @override
   Widget build(BuildContext context) {
-    String colorValueString =
-        widget.backgroundColor.replaceAll("Color(", "").replaceAll(")", "");
+    var currentStory = widget.stories[_currentStoryIndex];
+    String colorValueString = currentStory['backgroundColor']
+        .replaceAll("Color(", "")
+        .replaceAll(")", "");
     int colorValue = int.parse(colorValueString);
     Color backColor = Color(colorValue);
+
     return Scaffold(
       backgroundColor: backColor,
       body: SafeArea(
         child: GestureDetector(
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity! > 0) {
+              _previousStory(); // Swipe right to go to the previous story
+            } else if (details.primaryVelocity! < 0) {
+              _nextStory(); // Swipe left to go to the next story
+            }
+          },
           onTapDown: _pauseTimer,
           onTapUp: _resumeTimer,
           onTapCancel: _resumeTimer2,
@@ -100,7 +122,7 @@ class _ViewStoryState extends State<ViewStory> {
             children: [
               Center(
                 child: CachedNetworkImage(
-                  imageUrl: widget.storyImageUrl,
+                  imageUrl: currentStory['storyImageUrl'],
                   fit: BoxFit.contain,
                   width: double.infinity,
                 ),
@@ -119,11 +141,12 @@ class _ViewStoryState extends State<ViewStory> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
-                              image: widget.userImageUrl != "defaultIMG"
-                                  ? CachedNetworkImageProvider(
-                                      widget.userImageUrl)
-                                  : const AssetImage("images/user.jpeg")
-                                      as ImageProvider,
+                              image:
+                                  currentStory['userImageUrl'] != "defaultIMG"
+                                      ? CachedNetworkImageProvider(
+                                          currentStory['userImageUrl'])
+                                      : const AssetImage("images/user.jpeg")
+                                          as ImageProvider,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -134,13 +157,13 @@ class _ViewStoryState extends State<ViewStory> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.username,
+                            currentStory['username'],
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
                           Text(
-                            _getTimeAgo(widget.storyTime),
+                            _getTimeAgo(currentStory['storyTime']),
                             style: const TextStyle(
                                 fontSize: 12.0, color: Colors.grey),
                           ),

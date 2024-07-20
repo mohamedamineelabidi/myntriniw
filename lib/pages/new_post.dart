@@ -68,19 +68,17 @@ class _NewPostState extends State<NewPost> {
         'text': _textController.text,
         'image_url': imageUrl,
         'timestamp': FieldValue.serverTimestamp(),
+        'likes': [],
+        'likesCount': 0,
       });
 
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Post created successfully')),
       );
 
-      // ignore: use_build_context_synchronously
       Navigator.pop(context);
-      // ignore: use_build_context_synchronously
       Navigator.pop(context);
     } catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error creating post: $e')),
       );

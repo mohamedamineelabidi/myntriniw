@@ -1,23 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ntrriniw_v0/components/view_story.dart';
+import 'view_story.dart'; // Update the import to point to your actual path
 
 class MyStory extends StatefulWidget {
-  final String storyImageUrl;
-  final Timestamp storyTime;
+  final List<DocumentSnapshot> stories;
   final String userImageUrl;
   final String username;
-  final String backgroundColor;
 
   const MyStory({
     super.key,
-    required this.storyImageUrl,
-    required this.storyTime,
+    required this.stories,
     required this.userImageUrl,
     required this.username,
-    required this.backgroundColor,
   });
 
   @override
@@ -40,15 +36,22 @@ class _MyStoryState extends State<MyStory> {
       _opacity = 1.0;
       _scale = 1.0;
     });
+
+    List<Map<String, dynamic>> storiesList = widget.stories.map((doc) {
+      return {
+        'storyImageUrl': doc['image_url'],
+        'storyTime': doc['timestamp'],
+        'userImageUrl': widget.userImageUrl,
+        'username': widget.username,
+        'backgroundColor': doc['backgroundColor'],
+      };
+    }).toList();
+
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => ViewStory(
-          storyImageUrl: widget.storyImageUrl,
-          storyTime: widget.storyTime,
-          userImageUrl: widget.userImageUrl,
-          username: widget.username,
-          backgroundColor: widget.backgroundColor,
+          stories: storiesList,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
@@ -93,7 +96,7 @@ class _MyStoryState extends State<MyStory> {
                     ),
                   ),
                   child: ClipOval(
-                    child: widget.userImageUrl != "defautIMG"
+                    child: widget.userImageUrl != "defaultIMG"
                         ? CachedNetworkImage(
                             imageUrl: widget.userImageUrl,
                             fit: BoxFit.cover,

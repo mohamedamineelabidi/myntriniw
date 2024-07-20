@@ -1,15 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:ntrriniw_v0/components/my_text_field.dart';
 import 'package:ntrriniw_v0/services/chat/chat_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatPage extends StatefulWidget {
-  final String receiverEmail;
+  final String receiverUsername;
   final String receiverId;
+  final String receiverProfile;
 
-  const ChatPage(
-      {super.key, required this.receiverEmail, required this.receiverId});
+  const ChatPage({
+    super.key,
+    required this.receiverUsername,
+    required this.receiverId,
+    required this.receiverProfile,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -31,11 +37,10 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.receiverEmail),
-      ),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
+          _buildChatHeader(),
           Expanded(
             child: _buildMessageList(),
           ),
@@ -45,59 +50,120 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Widget _buildChatHeader() {
+    return SafeArea(
+      child: Container(
+        color: Colors.blueGrey[50],
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        child: Row(
+          children: [
+            const SizedBox(width: 12.0),
+            SizedBox(
+              width: 50.0,
+              height: 50.0,
+              child: ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: widget.receiverProfile != "defaultIMG"
+                      ? widget.receiverProfile
+                      : 'images/user.jpeg',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12.0),
+            Expanded(
+              child: Text(
+                widget.receiverUsername,
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.more_vert, color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMessageList() {
     return StreamBuilder(
-        stream: _chatService.getMessages(
-            widget.receiverId, _firebaseAuth.currentUser!.uid),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text("Error" + snapshot.error.toString());
-          }
+      stream: _chatService.getMessages(
+        widget.receiverId,
+        _firebaseAuth.currentUser!.uid,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Loading..");
-          }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          return ListView(
-            children: snapshot.data!.docs
-                .map((document) => _buildMessageItem(document))
-                .toList(),
-          );
-        });
+        return ListView(
+          padding: const EdgeInsets.all(8.0),
+          children: snapshot.data!.docs
+              .map((document) => _buildMessageItem(document))
+              .toList(),
+        );
+      },
+    );
   }
 
   Widget _buildMessageItem(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-    var alignemet = (data["senderId"] == _firebaseAuth.currentUser!.uid)
-        ? Alignment.centerRight
-        : Alignment.centerLeft;
+    bool isCurrentUser = data["senderId"] == _firebaseAuth.currentUser!.uid;
     return Container(
-      alignment: alignemet,
-      child: Column(
-        children: [
-          Text(data["senderEmail"]),
-          Text(data["message"]),
-        ],
+      margin: const EdgeInsets.symmetric(vertical: 5.0),
+      alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        decoration: BoxDecoration(
+          color: isCurrentUser ? const Color.fromARGB(255, 58, 163, 70) : Colors.grey[300],
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: Text(
+          data["message"],
+          style: TextStyle(
+            color: isCurrentUser ? Colors.white : Colors.black87,
+            fontSize: 16.0,
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildMessageInput() {
-    return Row(
-      children: [
-        Expanded(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
             child: MyTextField(
-                controller: _messageController,
-                hintText: "Enter a message...",
-                obscureText: false)),
-        IconButton(
+              controller: _messageController,
+              hintText: "Enter a message...",
+              obscureText: false,
+            ),
+          ),
+          IconButton(
             onPressed: sendMessage,
             icon: const Icon(
-              Icons.arrow_upward,
-              size: 40,
-            )),
-      ],
+              Icons.send,
+              color: Color.fromARGB(255, 58, 163, 70),
+              size: 30,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
