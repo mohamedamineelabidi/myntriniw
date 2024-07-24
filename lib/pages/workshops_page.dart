@@ -13,17 +13,13 @@ class WorkshopsPage extends StatefulWidget {
 class _HomePageState extends State<WorkshopsPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
+    return const Scaffold(
         appBar: MyAppBar(),
-        body: Column(
-          children: [
-            Text(
-              "Workshops",
-              style: GoogleFonts.openSans(
-                  fontSize: 25, fontWeight: FontWeight.w800),
-            )
-          ],
+        body: Center(
+          child: Text(
+            "The worksops page ",
+            style: TextStyle(fontSize: 24),
+          ),
         ),
         bottomNavigationBar: MyNavBar(selectedIndex: 1));
   }

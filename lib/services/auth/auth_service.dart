@@ -30,6 +30,7 @@ class AuthService extends ChangeNotifier {
   Future<UserCredential> signUpWithEmailandPassword(
       String email, password, username, image) async {
     try {
+      print("}}}}}}}}}}}}}}}] 0");
       UserCredential userCredential =
           await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -55,6 +56,7 @@ class AuthService extends ChangeNotifier {
           "email": email,
           "profileImg": 'defautIMG',
         });
+        print("}}}}}}}}}}}}}}}] 5");
       }
 
       return userCredential;
