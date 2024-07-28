@@ -33,7 +33,7 @@ class MyNavBar extends StatelessWidget {
       } else if (index == 1) {
         navigateTo(context, const AuthGate(page: WorkshopsPage()));
       } else if (index == 2) {
-        navigateTo(context, const AuthGate(page: ReelsPage()));
+        navigateTo(context,  AuthGate(page: ReelsPage()));
       } else if (index == 3) {
         navigateTo(context, const AuthGate(page: StorePage()));
       } else if (index == 4) {
